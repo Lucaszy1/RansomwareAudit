@@ -51,6 +51,7 @@ def test_restore_refuses_overwrite(vault, tmp_path):
 
 def test_restore_detects_tampering(vault, tmp_path):
     entry = vault.quarantine_file(make_file(tmp_path))
+    os.chmod(entry["vault_path"], 0o600)  # simulate an attacker gaining write access
     with open(entry["vault_path"], "ab") as f:
         f.write(b"tampered")
     with pytest.raises(Exception):
