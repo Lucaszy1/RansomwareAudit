@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+ENV/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Secrets and config with real keys
+.env
+virustotal_config.json
+notification_config.json
+
+# Runtime data and generated artifacts
+quarantine_vault/
+ransomware_backups/
+*.db
+*.pkl
+*.log
+logs/
+ransomware_risk_report.*
+ml_predictions.json
+eval_results.json

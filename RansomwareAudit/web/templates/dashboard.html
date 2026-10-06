@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ransomware Audit Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <h2>Ransomware Audit</h2>
+            <p>Security Dashboard</p>
+        </div>
+        <nav>
+            <a href="#" class="nav-item active" data-section="overview">Overview</a>
+            <a href="#" class="nav-item" data-section="scanner">New Scan</a>
+            <a href="#" class="nav-item" data-section="history">Scan History</a>
+            <a href="#" class="nav-item" data-section="quarantine">Quarantine</a>
+            <a href="#" class="nav-item" data-section="backups">Backups</a>
+            <a href="#" class="nav-item" data-section="ml">Machine Learning</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <h1 id="page-title">System Overview</h1>
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <span class="stat-label">Status</span>
+                    <span class="stat-value status-active">Active</span>
+                </div>
+            </div>
+        </header>
+
+        <section id="overview-section" class="content-section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Scans</h3>
+                    <div class="stat-number" id="total-scans">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Files Analyzed</h3>
+                    <div class="stat-number" id="total-files">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Threats Detected</h3>
+                    <div class="stat-number threat" id="total-threats">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Quarantined</h3>
+                    <div class="stat-number" id="quarantined-count">0</div>
+                </div>
+            </div>
+
+            <div class="chart-row">
+                <div class="chart-container">
+                    <h3>Risk Distribution</h3>
+                    <canvas id="riskChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Recent Activity</h3>
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="scanner-section" class="content-section">
+            <div class="scan-panel">
+                <h2>Start New Scan</h2>
+                <div class="form-group">
+                    <label>Directory Path</label>
+                    <input type="text" id="scan-path" placeholder="~/Documents" value="~/Documents">
+                </div>
+                <button class="btn btn-primary" onclick="startScan()">
+                    <span id="scan-btn-text">Start Scan</span>
+                </button>
+                <div id="scan-progress" class="scan-progress" style="display:none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <p>Scanning in progress...</p>
+                </div>
+                <div id="scan-result" class="scan-result"></div>
+            </div>
+        </section>
+
+        <section id="history-section" class="content-section">
+            <div class="table-container">
+                <h2>Scan History</h2>
+                <table id="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Path</th>
+                            <th>Risk Level</th>
+                            <th>Score</th>
+                            <th>Files</th>
+                            <th>Flagged</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="quarantine-section" class="content-section">
+            <div class="table-container">
+                <h2>Quarantined Files</h2>
+                <div class="stats-mini">
+                    <span>Total: <strong id="q-total">0</strong></span>
+                    <span>Size: <strong id="q-size">0 MB</strong></span>
+                </div>
+                <table id="quarantine-table">
+                    <thead>
+                        <tr>
+                            <th>File</th>
+                            <th>Original Path</th>
+                            <th>Quarantined</th>
+                            <th>Risk Score</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quarantine-tbody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="backups-section" class="content-section">
+            <div class="backup-panel">
+                <h2>Backup Management</h2>
+                <div class="backup-create">
+                    <h3>Create New Backup</h3>
+                    <div class="form-group">
+                        <label>Source Directory</label>
+                        <input type="text" id="backup-source" placeholder="/path/to/backup">
+                    </div>
+                    <div class="form-group">
+                        <label>Backup Name (optional)</label>
+                        <input type="text" id="backup-name" placeholder="auto-generated">
+                    </div>
+                    <button class="btn btn-primary" onclick="createBackup()">Create Backup</button>
+                </div>
+                <div class="backup-list">
+                    <h3>Existing Backups</h3>
+                    <div id="backup-list-container"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ml-section" class="content-section">
+            <div class="ml-panel">
+                <h2>Machine Learning Status</h2>
+                <div id="ml-status" class="ml-status"></div>
+            </div>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

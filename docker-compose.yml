@@ -1,0 +1,13 @@
+services:
+  dashboard:
+    build: .
+    # Published only to the host loopback, not to the LAN.
+    ports:
+      - "127.0.0.1:5001:5001"
+    environment:
+      # Set a fixed token so you can reach the dashboard across restarts.
+      - RA_DASHBOARD_TOKEN=${RA_DASHBOARD_TOKEN:-change-me}
+    volumes:
+      - ./quarantine_vault:/app/quarantine_vault
+      - ./ransomware_backups:/app/ransomware_backups
+    restart: unless-stopped

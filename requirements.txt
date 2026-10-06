@@ -1,0 +1,15 @@
+# Core detection + web dashboard
+scikit-learn>=1.0.0
+numpy>=1.20.0
+flask>=2.0.0
+requests>=2.25.0
+PyYAML>=5.4
+cryptography>=3.4
+
+# Optional features
+reportlab>=3.6        # PDF reports (RansomwareAudit.generate_pdf)
+watchdog>=2.1         # event-based monitoring (monitor_run --events)
+psutil>=5.8           # experimental process blocker (monitor.blocker)
+
+# Testing
+pytest>=7.0

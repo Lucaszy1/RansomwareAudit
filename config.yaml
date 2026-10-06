@@ -1,0 +1,56 @@
+# RansomwareAudit configuration.
+# Every value here is read at runtime, missing keys fall back to the built-in
+# defaults in RansomwareAudit/config/manager.py. Point elsewhere with RA_CONFIG.
+
+scanner:
+  exclude_directories: [.git, __pycache__, node_modules, quarantine_vault,
+                        ransomware_backups, .venv, venv]
+  entropy_threshold: 7.5          # bits/byte; >= this counts as "very high"
+  entropy_sample_bytes: 1048576   # read at most 1 MB per file for entropy
+  max_file_size_mb: 100
+
+risk:                             # score -> level, for both files and the whole scan
+  medium: 4
+  high: 8
+  critical: 12
+
+behavior:
+  time_window_seconds: 60         # "recent" modification window for a one-shot scan
+  burst_file_count: 20
+
+monitoring:
+  interval_seconds: 5             # polling interval
+  sliding_window_seconds: 30      # events are scored over this trailing window
+  mass_modify_count: 50
+  mass_delete_count: 20
+  mass_rename_count: 10
+
+machine_learning:
+  enabled: true
+  model_path: ransomware_ml_model.pkl
+  contamination: 0.1              # Isolation Forest expected anomaly fraction
+
+quarantine:
+  enabled: true
+  auto_quarantine: false
+  quarantine_threshold: 8         # per-file score needed to quarantine
+  quarantine_dir: quarantine_vault
+
+backup:
+  backup_dir: ransomware_backups
+  max_backups: 10
+
+virustotal:
+  enabled: false
+  rate_limit_delay: 15            # seconds between hash lookups (free tier)
+  max_files: 5
+
+web_dashboard:
+  host: 127.0.0.1                 # this machine only; 0.0.0.0 exposes it to the network
+  port: 5001
+  debug: false                    # never enable in production (RCE via Werkzeug)
+  allowed_scan_roots: ["~"]       # dashboard may only scan folders under these
+
+network:
+  server_host: 127.0.0.1
+  server_port: 5000
