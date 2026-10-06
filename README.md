@@ -1,5 +1,7 @@
 # RansomwareAudit
 
+![tests](https://github.com/Lucaszy1/RansomwareAudit/actions/workflows/ci.yml/badge.svg)
+
 A Python tool that looks for ransomware activity using several independent
 signals instead of a single one: file entropy, file metadata and permissions,
 real-time behavior (rate of changes, mass renames/deletions), and an
