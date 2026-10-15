@@ -1,6 +1,10 @@
+import hashlib
+import hmac
+import io
 import os
 import pickle
 import json
+import secrets
 from datetime import datetime
 import numpy as np
 
@@ -28,6 +32,37 @@ def _age_days(file_data):
         return (datetime.now().timestamp() - float(mtime)) / 86400
     except (TypeError, ValueError):
         return float("inf")
+
+
+def _key_path():
+    base = os.environ.get("XDG_CONFIG_HOME") or os.path.join(os.path.expanduser("~"), ".config")
+    return os.path.join(base, "ransomwareaudit", "model.key")
+
+
+def _signing_key():
+    """Secret used to sign saved models.
+
+    Unpickling runs code, so a swapped .pkl is code execution. Every saved model
+    gets an HMAC-SHA256 signature, and load_model() refuses anything that doesn't
+    verify. The key lives outside the project folder (owner-only, 0600), or comes
+    from RA_MODEL_KEY, so someone who can drop a .pkl next to the tool can't also
+    forge its signature.
+    """
+    env = os.environ.get("RA_MODEL_KEY")
+    if env:
+        return env.encode()
+    path = _key_path()
+    if not os.path.exists(path):
+        os.makedirs(os.path.dirname(path), mode=0o700, exist_ok=True)
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, "wb") as f:
+            f.write(secrets.token_bytes(32))
+    with open(path, "rb") as f:
+        return f.read()
+
+
+def _sign(data):
+    return hmac.new(_signing_key(), data, hashlib.sha256).hexdigest()
 
 
 class RansomwareMLModel:
@@ -138,8 +173,11 @@ class RansomwareMLModel:
             'training_history': self.training_history
         }
         
+        data = pickle.dumps(model_data)
         with open(self.model_path, 'wb') as f:
-            pickle.dump(model_data, f)
+            f.write(data)
+        with open(self.model_path + ".sig", 'w') as f:
+            f.write(_sign(data))
         
         print(f"[+] Model saved to {self.model_path}")
         return True
@@ -154,7 +192,17 @@ class RansomwareMLModel:
         
         try:
             with open(self.model_path, 'rb') as f:
-                model_data = pickle.load(f)
+                data = f.read()
+            try:
+                with open(self.model_path + ".sig") as f:
+                    sig = f.read().strip()
+            except OSError:
+                sig = ""
+            if not hmac.compare_digest(sig, _sign(data)):
+                print(f"[ERROR] Refusing to load {self.model_path}: signature missing or invalid. "
+                      "Retrain the model on this machine.")
+                return False
+            model_data = pickle.load(io.BytesIO(data))
             
             self.model = model_data['model']
             self.scaler = model_data['scaler']

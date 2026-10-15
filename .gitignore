@@ -27,3 +27,4 @@ logs/
 ransomware_risk_report.*
 ml_predictions.json
 eval_results.json
+*.pkl.sig
